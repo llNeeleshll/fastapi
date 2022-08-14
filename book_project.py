@@ -1,7 +1,8 @@
 import enum
+from http.client import UNAUTHORIZED
 from typing import Optional
 import uuid
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, status, Header
 import uvicorn
 from pydantic import BaseModel, Field
 from uuid import UUID
@@ -24,12 +25,17 @@ class Book(BaseModel):
             "example" : {
                 "id" : "Some UUID Value",
                 "title" : "Enter the Book title",
-                "Author" : "Who wrote the book?",
-                "Description" : "Describe about the book.",
+                "author" : "Who wrote the book?",
+                "description" : "Describe about the book.",
                 "rating" : "Book Rating"
             }
         }
 
+class BookNoRating(BaseModel):
+    id: UUID
+    title: str = Field(min_length=1)
+    author: str = Field(min_length=1, max_length=100)
+    description: Optional[str] =  Field(title="Description of Book", max_length=100, min_length=1)
 
 app = FastAPI()
 
@@ -38,6 +44,20 @@ books = []
 @app.exception_handler(NegativeNumberException)
 async def neagtive_number_exception(request: Request, exception: NegativeNumberException):
     return JSONResponse(status_code=418, content={"message" : f"Why do you need {exception.no_of_books} to be negative?"})
+
+@app.get("/readbook")
+def read_book(book_id : UUID, username : str = Header(None), password : str = Header(None)):
+    if username == "FastAPIUser" and password == "test1234!":
+        for item in books:
+            if item.id == book_id:
+                return item
+    else:
+        return {"Message" : "Incorrect Credentials"}
+    
+
+@app.get("/readheader")
+async def read_header(random_header : Optional[str] = Header(None)):
+    return {"Random_Header" : random_header}
 
 @app.get("/getbooks")
 async def read_all_books(no_of_books : Optional[int] = None):
@@ -57,7 +77,13 @@ async def get_book_by_id(book_id: UUID):
         if item.id == book_id:
             return item
 
-@app.post("/createbook")
+@app.get("/booknorating/{book_id}", response_model=BookNoRating)
+async def get_book_by_id(book_id: UUID):
+    for item in books:
+        if item.id == book_id:
+            return item
+
+@app.post("/createbook", status_code=status.HTTP_201_CREATED)
 async def create_book(book: Book):
     books.append(book)
 
