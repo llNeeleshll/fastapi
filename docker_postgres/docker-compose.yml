@@ -1,0 +1,14 @@
+version : '3.3'
+## Defining the containers
+services:
+  ## The first container is the web app container
+  postgres_db_service:
+    image: postgres:12
+    container_name: postgres_container
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    restart: "on-failure"
+  
