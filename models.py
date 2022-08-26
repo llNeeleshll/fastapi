@@ -15,6 +15,9 @@ class Users(Base):
     last_name = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+    phone_number = Column(String)
+    address_id = Column(Integer, ForeignKey("address_id"), nullable=True)
+    address = relationship("Address", back_populates="user_address")
     # all_todos = relationship("Todo", back_populates="created_by_user")
 
 class Todo(Base):
@@ -28,3 +31,16 @@ class Todo(Base):
     complete = Column(Boolean, default=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     # created_by_user = relationship("Users", back_populates="all_todos")
+
+class Address(Base):
+    __tablename__ = "address"
+
+    id = Column(Integer, primary_key = True, index = True)
+    address1 = Column(String)
+    address2 = Column(String)
+    city = Column(String)
+    state = Column(String)
+    country = Column(String)
+    post_code = Column(String)
+    
+    user_address = relationship("Users", back_populates="address")

@@ -1,0 +1,5 @@
+alembic upgrade <revision_name>
+
+alembic downgrade -1
+
+alembic revision -m "<message>"
