@@ -5,8 +5,8 @@ from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from database import Base
 
-class User(Base):
-    __tablename__ = "user"
+class Users(Base):
+    __tablename__ = "users"
 
     id = Column(Integer, primary_key = True, index = True)
     email = Column(String, unique=True, index = True)
@@ -15,7 +15,7 @@ class User(Base):
     last_name = Column(String)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    all_todos = relationship("Todo", back_populates="created_by_user")
+    # all_todos = relationship("Todo", back_populates="created_by_user")
 
 class Todo(Base):
 
@@ -26,5 +26,5 @@ class Todo(Base):
     description = Column(String)
     priority = Column(Integer)
     complete = Column(Boolean, default=False)
-    user_id = Column(Integer, ForeignKey("user.id"))
-    created_by_user = relationship("User", back_populates="all_todos")
+    user_id = Column(Integer, ForeignKey("users.id"))
+    # created_by_user = relationship("Users", back_populates="all_todos")

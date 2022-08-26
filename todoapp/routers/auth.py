@@ -1,5 +1,7 @@
-from turtle import stamp
-from fastapi import FastAPI, Depends, HTTPException, Request, status, Header
+import sys
+sys.path.append("..")
+
+from fastapi import Depends, HTTPException, Request, status, APIRouter
 from pydantic import BaseModel, Field
 from typing import Optional
 import models
@@ -35,13 +37,17 @@ bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
 
-app = FastAPI()
+auth_router = APIRouter(
+    prefix="/auth",
+    tags=["Authentication"],
+    responses={401 : {"user" : "Not Authorized"}}
+)
 
 def verify_password(password: str, hashed_password: str):
     return bcrypt_context.verify(password, hashed_password)
 
 def authenticate_user(username:str, password:str, session: Session):
-    logged_in_user = session.query(models.User).filter(models.User.user_name == username).first()
+    logged_in_user = session.query(models.Users).filter(models.Users.user_name == username).first()
 
     if logged_in_user is None:
         return False
@@ -82,9 +88,9 @@ def get_currrent_user(token:str = Depends(oauth2_bearer)):
     except JWTError:
         raise get_user_exception()
 
-@app.post("/createuser")
+@auth_router.post("/createuser")
 async def create_user(user: CreateUser, session: Session = Depends(get_session)):
-    create_user_new = models.User()
+    create_user_new = models.Users()
 
     create_user_new.email = user.email
     create_user_new.user_name = user.username
@@ -101,7 +107,7 @@ async def create_user(user: CreateUser, session: Session = Depends(get_session))
         "message" : "Success"
     }
 
-@app.post("/token")
+@auth_router.post("/token")
 async def login_for_access_token(form_data : OAuth2PasswordRequestForm = Depends(), session : Session = Depends(get_session)):
     user  = authenticate_user(form_data.username, form_data.password, session)
 
