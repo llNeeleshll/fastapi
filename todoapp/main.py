@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from fastapi import FastAPI, HTTPException, Request, status, Header
 import helper_models.todos as td
 from routers.auth import get_currrent_user, get_user_exception
-from routers import auth, todos
+from routers import auth, todos, users
 from company import companyapis, dependencies
 
 app = FastAPI()
@@ -22,6 +22,7 @@ app.include_router(
     responses={418: {"description" : "Internal Use Only" }},
     dependencies=[Depends(dependencies.get_token_header)]
     )
+app.include_router(users.router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host='0.0.0.0', port=8000, reload=True)
