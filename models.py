@@ -17,7 +17,7 @@ class Users(Base):
     is_active = Column(Boolean, default=True)
     phone_number = Column(String)
     address_id = Column(Integer, ForeignKey("address_id"), nullable=True)
-    address = relationship("Address", back_populates="user_address")
+    # address = relationship("Address", back_populates="user_address")
     # all_todos = relationship("Todo", back_populates="created_by_user")
 
 class Todo(Base):
@@ -43,4 +43,4 @@ class Address(Base):
     country = Column(String)
     post_code = Column(String)
     
-    user_address = relationship("Users", back_populates="address")
+    # user_address = relationship("Users", back_populates="address")
